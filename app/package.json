@@ -9,6 +9,7 @@
   "author": "Noah Shogan",
   "license": "ISC",
   "devDependencies": {
+    "aws-sdk-mock": "^5.8.0",
     "jest": "^29.5.0"
   }
 }
