@@ -55,9 +55,8 @@ jobs:
     - name: Save Terraform Outputs
       id: terraform_outputs
       run: |
-        OUTPUT_VAR_NAME=$(terraform output -raw your_output_variable_name)
-        echo "OUTPUT_VAR_NAME=$OUTPUT_VAR_NAME" >> $GITHUB_ENV
+        echo "::set-env name=OUTPUT_VAR_NAME::$(terraform output -raw your_output_variable_name)"
 
     - name: Export Terraform Outputs
       run: |
-        echo $OUTPUT_VAR_NAME
+        echo $OUTPUT_VAR_NAME >> $GITHUB_ENV
