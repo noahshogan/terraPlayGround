@@ -9,7 +9,7 @@ provider "aws" {
 }
 
 # Create an IAM role for the Lambda function
-# This IAM role provides permissions that determine what other AWS service resources the Lambda function can access
+# This IAM role provides permissions that determine what other AWS service resources the Lambda function can access 
 resource "aws_iam_role" "noah_role" {
   name               = "noah_role"
   assume_role_policy = jsonencode({
@@ -161,3 +161,6 @@ resource "aws_lambda_permission" "allow_bucket" {
   source_arn    = aws_s3_bucket.noah_bucket.arn
 }
 
+
+
+# Test
