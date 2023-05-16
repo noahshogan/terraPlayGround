@@ -1,14 +1,16 @@
 // Import AWS SDK to interact with AWS services
 const AWS = require('aws-sdk');
-
+AWS.config.update({region: 'us-east-1'});
 // Create S3 service object to interact with S3
-const s3 = new AWS.S3();
+let s3 = null;
 
 // Create DynamoDB document client to interact with DynamoDB
-const dynamodb = new AWS.DynamoDB.DocumentClient();
+let dynamodb = null;
 
 // This is the main Lambda function handler
 exports.handler = async (event) => {
+    s3 = new AWS.S3();
+    dynamodb = new AWS.DynamoDB.DocumentClient();
     // Extract the bucket name and object key from the event that triggered the Lambda
     // The event is assumed to be an S3 Object Created event
     let bucket = event.Records[0].s3.bucket.name;
