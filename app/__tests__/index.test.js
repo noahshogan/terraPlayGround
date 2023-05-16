@@ -1,7 +1,8 @@
 // Import the necessary modules
 const AWS = require('aws-sdk'); // AWS SDK for interfacing with AWS services
 const AWSMock = require('aws-sdk-mock'); // Mock AWS SDK for testing
-const { handler } = require('../index'); // Import the lambda function handler
+const { handler } = require('../index');
+const {describe} = require("test"); // Import the lambda function handler
 
 // Use the done callback for asynchronous testing
 describe('Testing S3 to DynamoDB Lambda', function () {
