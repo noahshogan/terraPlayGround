@@ -99,4 +99,3 @@ To delete the resources created by Terraform, you can use the terraform destroy 
 ```bash
 terraform destroy
 ```
-
