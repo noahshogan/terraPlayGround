@@ -51,3 +51,13 @@ jobs:
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main' # Only apply on main branch
       run: terraform apply -auto-approve
+
+    - name: Save Terraform Outputs
+      id: terraform_outputs
+      run: |
+        OUTPUT_VAR_NAME=$(terraform output -raw your_output_variable_name)
+        echo "OUTPUT_VAR_NAME=$OUTPUT_VAR_NAME" >> $GITHUB_ENV
+
+    - name: Export Terraform Outputs
+      run: |
+        echo $OUTPUT_VAR_NAME
