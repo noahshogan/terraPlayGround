@@ -19,12 +19,12 @@ jobs:
 
 
     - name: Install dependencies
-      run: npm ci
       working-directory: ./app
+      run: npm ci
 
     - name: Run tests
-      run: npm test
       working-directory: ./app
+      run: npm test
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
