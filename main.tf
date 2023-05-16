@@ -1,10 +1,15 @@
+# Configure the Random provider
+# The Random provider is a simple provider that generates random values, useful in various infrastructure configurations
 provider "random" {}
 
+# Configure the AWS provider
+# The AWS provider allows you to configure AWS resources
 provider "aws" {
   region = "us-east-1"
 }
 
-# IAM Role
+# Create an IAM role for the Lambda function
+# This IAM role provides permissions that determine what other AWS service resources the Lambda function can access
 resource "aws_iam_role" "noah_role" {
   name               = "noah_role"
   assume_role_policy = jsonencode({
@@ -25,16 +30,19 @@ resource "aws_iam_role" "noah_role" {
   ]
 }
 
-# Random UUID
+# Generate a UUID for unique identification
+# This value will be used to ensure the S3 bucket name is unique
 resource "random_uuid" "bucket_id" {}
 
-# Random Pet
+# Generate a unique 'pet' name
+# This value will also be used to ensure the S3 bucket name is unique
 resource "random_pet" "bucket_name" {
   length    = 2
   separator = "-"
 }
 
-# S3 Bucket
+# Create an S3 bucket with a unique name
+# This bucket will store the files that will trigger the Lambda function
 resource "aws_s3_bucket" "noah_bucket" {
   bucket = "noah-bucket-${random_pet.bucket_name.id}-${random_uuid.bucket_id.result}"
 
@@ -44,7 +52,8 @@ resource "aws_s3_bucket" "noah_bucket" {
   }
 }
 
-# DynamoDB Table
+# Create a DynamoDB table to store data from S3
+# This table will store the data processed by the Lambda function
 resource "aws_dynamodb_table" "s3_to_dynamodb" {
   name           = "s3_to_dynamodb"
   billing_mode   = "PROVISIONED"
@@ -69,14 +78,16 @@ resource "aws_dynamodb_table" "s3_to_dynamodb" {
   }
 }
 
-# Lambda Archive File
+# Prepare the Lambda function's code by zipping it
+# The Lambda function's code needs to be in a zip file in order to be uploaded to AWS
 data "archive_file" "lambda_zip" {
   type        = "zip"
   source_dir  = "./app"
   output_path = "noah_payload.zip"
 }
 
-# Lambda Function
+# Create a Lambda function that processes data from S3 and stores it in DynamoDB
+# This function is triggered when a new file is added to the S3 bucket
 resource "aws_lambda_function" "s3_to_dynamodb" {
   function_name = "s3_to_dynamodb"
   handler       = "index.handler"
@@ -90,7 +101,8 @@ resource "aws_lambda_function" "s3_to_dynamodb" {
   memory_size = 128
 }
 
-# IAM Role Policy
+# Define a policy that allows the Lambda function to access S3, DynamoDB, and CloudWatch Logs
+# This policy is necessary for the Lambda function to be able to read from S3, write to DynamoDB, and write logs to CloudWatch Logs
 resource "aws_iam_role_policy" "lambda_policy" {
   name = "lambda_policy"
   role = aws_iam_role.noah_role.id
@@ -113,19 +125,22 @@ resource "aws_iam_role_policy" "lambda_policy" {
   })
 }
 
-# IAM Role Policy Attachment for S3 Read Access
+# Attach a policy that allows read access to S3 to the Lambda function's role
+# This policy is necessary for the Lambda function to be able to read data from the S3 bucket
 resource "aws_iam_role_policy_attachment" "s3_read" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
   role       = aws_iam_role.noah_role.name
 }
 
-# IAM Role Policy Attachment for DynamoDB Write Access
+# Attach a policy that allows full access to DynamoDB to the Lambda function's role
+# This policy is necessary for the Lambda function to be able to write data to the DynamoDB table
 resource "aws_iam_role_policy_attachment" "dynamodb_write" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
   role       = aws_iam_role.noah_role.name
 }
 
-# S3 Bucket Notification
+# Create a notification configuration for the S3 bucket
+# This configuration will cause the S3 bucket to send an event to the Lambda function whenever a new file is added
 resource "aws_s3_bucket_notification" "bucket_notification" {
   depends_on = [aws_lambda_permission.allow_bucket]
   bucket     = aws_s3_bucket.noah_bucket.id
@@ -136,7 +151,8 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   }
 }
 
-# Lambda Permission for S3 Bucket Access
+# Define a permission that allows the S3 bucket to invoke the Lambda function
+# This permission is necessary for the S3 bucket to be able to trigger the Lambda function
 resource "aws_lambda_permission" "allow_bucket" {
   statement_id  = "AllowExecutionFromS3Bucket"
   action        = "lambda:InvokeFunction"
